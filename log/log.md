@@ -22,6 +22,10 @@ Array在编译的时候就确定了大小，不能改变。编译的时候便会
 
 ## 2020.9.21
 
+> 这一天换了参考资料，主要学习了Tour of Rust。这边的每一章内容都更小，接触核心概念更早，我认为更加适合第一次接触时学习。
+>
+> Rust By Examples 中很多概念可能会混淆在一起，后面的东西还没有学习到的时候就已经开始使用到了。对于刚开始学习Rust的人来说并不是很友好。
+
 流程控制：
 
 if与python很像，并不需要写括号，但是所有的运算符与C是相同的
@@ -68,3 +72,137 @@ Result<T,E>：原生enum类型，只有Ok(T)与Err(E)两个选项
 8. 生命周期标识符\'，在函数中可以使用<\'a>等符号表示变量的生命周期，这个生命周期的标注必须正确
 9. static生命周期，所有标记为static的变量据具有`'static`的生命周期并且所有对它的reference必须也是`’static`生命周期
 
+## 2020.9.22
+
+> 了解了一些基础后回归 RBE（Rust By Example）
+
+### Variable Bindings
+
+Rust的变量定义和javascript和python有一定相似度，内存的分配和变量名的定义可能有一定区别。C与C++则是每一个变量名都会直接分配对应的空间和地址。
+
+1. 虽然Rust是强类型语言，但是variable shadowing可以将不同类型的变量绑定到同一个变量上。但是之前的变量便会被丢弃。（使用 let，这个关键词在javascriptES6中被提出，代表一种块作用域。如果学过编译原理的话肯定对这些作用域印象深刻）
+2. 变量可以先用let声明之后绑定值，不过用法不常见。在C中还是非常常见的操作。
+3. 可以使用名字相同的变量进行freeze操作，即取消它在作用域中的可变特征。不过即使不进行freeze操作，只要作用域不同还是可以使用相同的变量名进行shadowing
+
+```rust
+fn main() {
+    let _mutable_integer = 7i32;
+    println!("{}", _mutable_integer);
+    {
+        // Shadowing
+        let _mutable_integer = 'a';
+        println!("{}", _mutable_integer);
+
+        // `_mutable_integer` goes out of scope
+    }
+
+    println!("{}",_mutable_integer);
+    // 7
+    // a
+    // 7
+}
+
+```
+
+### Types
+
+1. 类型转换：不允许未声明清楚类型的强制类型转换，同时有一些限制。但是除此之外和C应该是一样的，在二进制层面上原理相同。
+2. 数字Literal（也就是直接声明的数字）可以直接在后面标注类型`2u8`，大小和描写的相同。数字默认为整型32与浮点64，与64位C++相同，
+3. Rust的编译器很强大，有的时候可以可以自动推断一些变量的类型，比如说vec<>
+4. 定义的类型必须是UpperCamelCase
+
+### Conversion
+
+大类型之间的转化。From是一个trait，或者说python中的magic function。实现一个泛型的实例就可以完成类型的转化，Into是它的逆向操作。
+
+1. TryFrom TryInto 带有Result和可能错误的转化
+2. 与字符串的转化：可以实现ToString函数，不过直接实现fmt::Display会更加方便
+
+### Expression
+
+> 编译原理永远的痛
+
+使用;结尾的句子都是表达式，{}也是表达式。这个在编译原理中应该已经深有体会，完成的任务中如果有Lambda表达式的话则是让人深恶痛绝。
+
+### Flow of Control
+
+流控的不少内容之前也看过了，其中match的用法非常灵巧。记住match对应的default是符号`_`
+
+Rust的reference和pointer和C++非常类似。其中最大的区别相当于是在C++中默认增加了const关键字。
+
+:star:if let，这个关键字在C与C++中还比较常见，是用来赋值并且判断，判断出的结果需要有错误的类型，比如说None（来自Option）
+
+### Functions
+
+rust的函数不需要担心函数的先后顺序。
+
+无返回值的函数不需要标注返回值类型，默认返回()，空tuple是最基本的默认类型。
+
+#### Methods
+
+非常神奇的是，Rust的类的概念似乎比较散。所有的结构体、tuple都是可以被定义成员函数的。
+
+所有没有被传入self的函数都被认为是静态函数
+
+#### 闭包（lambda表达式）
+
+> 又到了编译原理的噩梦了
+
+rust的lambda表达式是我见过lambda表达式中外形最为奇怪的。
+
+```rust
+let closure_annotated = |i: i32| -> i32 { i + 1 };
+let closure_inferred  = |i     |          i + 1  ;
+```
+
+使用`| |`代替小括号进行函数的编写。可以非常智能地进行类型分析。
+
+但是lambda表达式本身的内容是需要考虑很多有关所有权的内容的。
+
+关于lambda表达式的mut标志，实际上和C++的const function有相似之处。对于rust，只要lambda当中需要改变一个mut变量，那么就需要标志为mut类型，来借用变量。（在C++中的变量引用需要手动标注是按值或按ref）
+
+除非明确在lambda表达式前面标记move，否则都是直接借用而不是挪用。也就是默认按照ref进行变量借用。
+
+##### 传入lambda表达式
+
+> 我曾经在Java中对java的lambda表达式深恶痛疾，其中关键之处就是Java对于Lambda表达式有一些非常奇怪的定义，Lambda表达式本质上是某些函数，必须要契合某种Interface
+
+
+
+Rust在这方面可能有些相似。传入的闭包必须明确标注一些类型：
+
+* Fn：按不变ref传值
+* FnMut：按可变ref传值
+* FnOnce: 按值传值，这会导致move 
+
+### Rustlings练习
+
+> 闭包的知识实在是太多了，没有耐心来看了。做一些简单的练习题巩固一下之前的知识
+
+根据建议，下面的做题顺序与`rustlings watch`命令编译的顺序相同。
+
+主要记录一下自己在哪里做错了，或是不太清楚的地方。
+
+#### variables
+
+variables6：const变量命名需要显式指定变量类型
+
+#### if
+
+if1: 经典的二元选择式，别忘了加括号
+
+#### functions
+
+functions2：Rust的函数需要显式指定输入变量的类型。如果没有输出则可以不指定输出的类型。【这么做的想法应该是在静态检查的时候让编译器明白你其实是想做些什么】
+
+functions5：仔细看，那个函数表达式最后有分号！这种错误简直就是找不同，幸好编译器会给提示
+
+#### primitive_types
+
+3： Rust中的数组概念稍微优点不同，定义与初始化方法要记清楚`[;]`
+
+4：Beginner’s luck要用完了，语法特点要开始发威了！slice并不需要声明类型，但是需要使用&a[1..4]进行借用。还要记住，slice标志中所有的都是下标。
+
+5：tuple的展开不需要指定类型
+
+6：tuple不像数组那样用下标，而是用`.2`这样的数字对象进行访问
