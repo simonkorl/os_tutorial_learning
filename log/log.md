@@ -1,5 +1,30 @@
 # rust学习日志
 
+## TOC
+
+
+九月
+
+| Mon  | Tue  | Wed  | Thu                       | Fri  | Sat                      | Sun                       |
+| ---- | ---- | ---- | ------------------------- | ---- | ------------------------ | ------------------------- |
+|      | 1    | 2    | 3                         | 4    | 5                        | 6                         |
+| 7    | 8    | 9    | 10                        | 11   | 12                       | 13                        |
+| 14   | 15   | 16   | 17                        | 18   | 19 ([Day 1](#2020.9.19)) | 20 ([Day 2](# 2020.9.20)) |
+| 21   | 22   | 23   | 24 ([Day 6](# 2020.9.24)) | 25   | 26                       | 27                        |
+| 28   | 29   | 30   |                           |      |                          |                           |
+
+十月
+
+| Mon  | Tue  | Wed  | Thu  | Fri  | Sat  | Sun  |
+| ---- | ---- | ---- | ---- | ---- | ---- | ---- |
+|      |      |      | 1    | 2    | 3    | 4    |
+| 5    | 6    | 7    | 8    | 9    | 10   | 11   |
+| 12   | 13   | 14   | 15   | 16   | 17   | 18   |
+| 19   | 20   | 21   | 22   | 23   | 24   | 25   |
+| 26   | 27   | 28   | 29   | 30   | 31   |      |
+
+---
+
 ## 2020.9.19
 
 完成Hello World部分的学习
@@ -193,19 +218,33 @@ if1: 经典的二元选择式，别忘了加括号
 
 #### functions
 
-functions2：Rust的函数需要显式指定输入变量的类型。如果没有输出则可以不指定输出的类型。【这么做的想法应该是在静态检查的时候让编译器明白你其实是想做些什么】
+##### functions2
 
-functions5：仔细看，那个函数表达式最后有分号！这种错误简直就是找不同，幸好编译器会给提示
+Rust的函数需要显式指定输入变量的类型。如果没有输出则可以不指定输出的类型。【这么做的想法应该是在静态检查的时候让编译器明白你其实是想做些什么】
+
+##### functions5
+
+仔细看，那个函数表达式最后有分号！这种错误简直就是找不同，幸好编译器会给提示
 
 #### primitive_types
 
-3： Rust中的数组概念稍微优点不同，定义与初始化方法要记清楚`[;]`
+##### 3
 
-4：Beginner’s luck要用完了，语法特点要开始发威了！slice并不需要声明类型，但是需要使用&a[1..4]进行借用。还要记住，slice标志中所有的都是下标。
+Rust中的数组概念稍微优点不同，定义与初始化方法要记清楚`[;]`
 
-5：tuple的展开不需要指定类型
+##### 4
 
-6：tuple不像数组那样用下标，而是用`.2`这样的数字对象进行访问
+> Beginner’s luck要用完了，语法特点要开始发威了！
+
+slice并不需要声明类型，但是需要使用&a[1..4]进行借用。还要记住，slice标志中所有的都是下标。
+
+##### 5
+
+tuple的展开不需要指定类型
+
+##### 6
+
+tuple不像数组那样用下标，而是用`.2`这样的数字对象进行访问
 
 ## 2020.9.25
 
@@ -213,7 +252,7 @@ functions5：仔细看，那个函数表达式最后有分号！这种错误简�
 
 #### struct
 
-1
+##### 1
 
 1. struct当中的String类型最好不要使用str抑或是&str，在[rust doc](https://doc.rust-lang.org/stable/book/ch05-02-example-structs.html)中有相关的介绍。其中最关键的是Rust要求struct结构体在编译时可以确认在栈上的大小，或者最多有一个元素不能确定大小。
 
@@ -235,7 +274,7 @@ functions5：仔细看，那个函数表达式最后有分号！这种错误简�
    // UnitStructs are fun!
    ```
 
-3
+##### 3
 
 1. 利用panic!(“string”)进行panic
 
@@ -243,7 +282,7 @@ functions5：仔细看，那个函数表达式最后有分号！这种错误简�
 
 > 实际上，在写C++的时候我就因为std::String与const char*的事情而头疼过。Rust在这里也有类似的概念
 
-2
+##### 2
 
 1. 这道题的正解应该是直接在传入函数的时候加上`&`符号来传入String slice，而不是修改函数的接收者
 
@@ -329,11 +368,11 @@ Rust的宏作为抽象语法树展开，可以避免像是C直接根据字符串
 
 #### macro
 
-2
+##### 2
 
 和函数不同，宏的定义与其他的模块是有先后顺序的。需要前面定义后后面的程序才能用到。
 
-3
+##### 3
 
 ```rust
 // macros3.rs
@@ -354,7 +393,7 @@ fn main() {
 
 #### move_semantics
 
-3
+##### 3
 
 ```rust
 // move_semantics3.rs
@@ -393,15 +432,15 @@ fn fill_vec(mut vec: Vec<i32>) -> Vec<i32> {//只需要在vec前面加一个mut�
 
 #### Error_handling
 
-1
+##### 1
 
 Rust通过自带的Result枚举类进行错误的判断，其包含Ok和Err两种不同的泛型，可以储存指定类型的信息。目前看来和许多语言的try catch的思想并不是非常一致。但是稍微有一点类似于Java的处理方法
 
-2
+##### 2
 
 match表达式整个算是一个表达式，里面的每一个选项使用`,`分割。最后如果不屑分号的话按照返回值处理每一个选项。
 
-3
+##### 3
 
 ```rust
 // errors3.rs
@@ -448,7 +487,7 @@ errorsn
 > * Option能有多难？
 > * 好难啊
 
-2
+##### 2
 
 ```rust
 // option2.rs
@@ -484,4 +523,350 @@ option2练习题中的嵌套Some的结构模式非常好地展示出了Rust的�
 
 #### trait
 
-Rust感觉上包括了绝大部分函数式语言的特点，并且目前看上去并不像是一门面向对象的语言，因为李米娜没有非常明显的类的概念。虽然之前具有有一些像类的概念的Module，但是它也只满足面向对象的“封装”的特点，而不满足“继承”与“多态”
+Rust感觉上包括了绝大部分函数式语言的特点，并且目前看上去并不像是一门面向对象的语言，因为李米娜没有非常明显的类的概念。虽然之前具有有一些像类的概念的Module，但是它也只满足面向对象的“封装”的特点，而不满足“继承”与“多态”。
+
+trait主要满足面向对象的”继承“和”多态”的特性。与其说是类，倒不如说是Java的接口的概念。
+
+之前提到过每一个struct或是tuple定义的类型都可以定义自己的成员函数Method，trait可以认为是这类成员函数的一个集合，所以说它的概念有一点像接口，不过trait没有可见性的问题，所有trait中的成员函数均是对外暴露的。这个特征使得其与接口还是有一些区别，更加像是javascript中一个叫做mixin的概念。
+
+trait可以使用#derive[]进行继承，继承的概念基本上就是为这个struct或tuple添加了这些函数的基本实现，如果想要overwrite则可以直接使用Impl进行实现即可进行重写。
+
+trait也可以用于运算符重载，重载Drop,Iterator以及Clone的特征，这部分也和python的magic function比较像，具体情况要具体分析
+
+## 2020.9.27
+
+### Rustling conitnue…
+
+#### arc
+
+Rust提供了自己的同步关键字和锁，不过想要实现还真的不是那么容易。
+
+这个实现模仿了网上介绍文档中的内容，不确定是否为最简单的实现法。
+
+```rust
+#![forbid(unused_imports)] // Do not change this, (or the next) line.
+use std::sync::Arc;
+use std::sync::Mutex;
+use std::thread;
+
+fn main() {
+    let numbers: Vec<_> = (0..100u32).collect();
+    let shared_numbers = Arc::new(Mutex::new(numbers));// TODO
+    let mut joinhandles = Vec::new();
+
+    for offset in 0..8 {
+        let child_numbers = shared_numbers.clone();
+        joinhandles.push(thread::spawn(move || {
+            let mut i = offset;
+            let mut sum = 0;
+            while i < child_numbers.lock().unwrap().len() {
+                sum += child_numbers.lock().unwrap()[i];
+                i += 5;
+            }
+            println!("Sum of offset {} is {}", offset, sum);
+        }));
+    }
+    for handle in joinhandles.into_iter() {
+        handle.join().unwrap();
+    }
+}
+
+```
+
+
+
+#### iterator
+
+##### 2
+
+需要记住Option和Iterator两个结构具有高阶函数，也就是函数式编程的一些函数。这道题的一些细节之处我也是参考了相关章节的内容才能够完成，不一定是最好的解法。
+
+```rust
+pub fn capitalize_first(input: &str) -> String {
+    let mut c = input.chars();
+    match c.next() {
+        None => String::new(),
+        Some(first) => first.to_uppercase().collect::<String>() + c.as_str(),// 这一行增加了.to_uppercase()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // Step 1.
+    // Tests that verify your `capitalize_first` function implementation
+    #[test]
+    fn test_success() {
+        assert_eq!(capitalize_first("hello"), "Hello");
+    }
+
+    #[test]
+    fn test_empty() {
+        assert_eq!(capitalize_first(""), "");
+    }
+
+    // Step 2.
+    #[test]
+    fn test_iterate_string_vec() {
+        let words = vec!["hello", "world"];
+        let capitalized_words: Vec<String> = words.iter().map(|x| capitalize_first(x)).collect(); //这行与下一个测试都使用了同样的表达式，但是答案并不相同。原因是前面的变量类型不一样
+        assert_eq!(capitalized_words, ["Hello", "World"]);
+    }
+
+    #[test]
+    fn test_iterate_into_string() {
+        let words = vec!["hello", " ", "world"];
+        let capitalized_words: String = words.iter().map(|x| capitalize_first(x)).collect();
+        assert_eq!(capitalized_words, "Hello World");
+    }
+}
+```
+
+##### 3,4
+
+iterator3和4的难点都是了解如何使用iterator的高阶函数（Higher Order Functions），分别从collect()和fold()两个函数介绍。要做对这部分需要了解高阶函数的使用方法，属于函数式编程的特点，对于我这种一直学的是OOP的人来说不是很友好。
+
+```rust
+// iterators3.rs
+
+#[derive(Debug, PartialEq, Eq)]
+pub enum DivisionError {
+    NotDivisible(NotDivisibleError),
+    DivideByZero,
+}
+
+#[derive(Debug, PartialEq, Eq)]
+pub struct NotDivisibleError {
+    dividend: i32,
+    divisor: i32,
+}
+
+// This function should calculate `a` divided by `b` if `a` is
+// evenly divisible by b.
+// Otherwise, it should return a suitable error.
+pub fn divide(a: i32, b: i32) -> Result<i32, DivisionError> {
+    if b == 0{
+        Err(DivisionError::DivideByZero)
+    } else if a % b == 0{
+        Ok(a / b)
+    } else {
+        Err(DivisionError::NotDivisible(NotDivisibleError{ dividend: a, divisor: b}))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // Tests that verify your `divide` function implementation
+    #[test]
+    fn test_success() {
+        assert_eq!(divide(81, 9), Ok(9));
+    }
+
+    #[test]
+    fn test_not_divisible() {
+        assert_eq!(
+            divide(81, 6),
+            Err(DivisionError::NotDivisible(NotDivisibleError {
+                dividend: 81,
+                divisor: 6
+            }))
+        );
+    }
+
+    #[test]
+    fn test_divide_by_0() {
+        assert_eq!(divide(81, 0), Err(DivisionError::DivideByZero));
+    }
+
+    #[test]
+    fn test_divide_0_by_something() {
+        assert_eq!(divide(0, 81), Ok(0));
+    }
+
+    // Iterator exercises using your `divide` function
+    
+    #[test]
+    fn result_with_list() {
+        let numbers = vec![27, 297, 38502, 81];
+        let division_results = numbers.into_iter().map(|n| divide(n, 27));
+        let x: Result<Vec<i32>, DivisionError> = division_results.collect();//... Fill in here!
+        assert_eq!(format!("{:?}", x), "Ok([1, 11, 1426, 3])");
+    }
+
+    #[test]
+    fn list_of_results() {
+        let numbers = vec![27, 297, 38502, 81];
+        let division_results = numbers.into_iter().map(|n| divide(n, 27));
+        let x : Vec<Result<i32, DivisionError>> = division_results.collect();//... Fill in here!
+        assert_eq!(format!("{:?}", x), "[Ok(1), Ok(11), Ok(1426), Ok(3)]");
+    }
+    
+}
+
+```
+
+```rust
+// iterators4.rs
+
+
+pub fn factorial(num: u64) -> u64 {
+    // 这是函数式编程的阶乘写法，有的时候fold函数也会成为reduce, inject
+    (1..=num).fold(1, |acc, x| acc * x)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn factorial_of_1() {
+        assert_eq!(1, factorial(1));
+    }
+    #[test]
+    fn factorial_of_2() {
+        assert_eq!(2, factorial(2));
+    }
+
+    #[test]
+    fn factorial_of_4() {
+        assert_eq!(24, factorial(4));
+    }
+}
+
+```
+
+#### trait
+
+##### 1
+
+String类型的函数的`+`重载可以与str进行连接，但是不能和String进行连接，这一点挺奇怪的
+
+```rust
+trait AppendBar {
+    fn append_bar(self) -> Self;
+}
+
+impl AppendBar for String {
+    //Add your code here
+    fn append_bar(self) -> Self {
+        self + "Bar"
+        // self + String::from("Bar") error
+    }
+}
+```
+
+##### 2
+
+trait2看起来和trait1很像，但是最终要求返回一个Vec类型的Self，此时vec使用过push函数来延长，发生了改变，所以需要在输入的地方定义 mut self。
+
+然而有趣的是trait定义函数的时候并没有规定self的可变属性，但是实现的时候可以将只能读取的借用变成可变借用，不知道这是一个什么原理。
+
+```rust
+trait AppendBar {
+    fn append_bar(self) -> Self;
+}
+
+//TODO: Add your code here
+
+impl AppendBar for Vec<String> {
+    fn append_bar(mut self) -> Self{
+        self.push(String::from("Bar"));
+        return self;
+    }
+}
+```
+
+#### generics
+
+> C++与Java的泛型已经让我非常头疼了，Rust的泛型似乎没有好到哪里去
+
+##### 1
+
+Vec不能储存储存大小在编译期间不能得知的内容
+
+```rust
+fn main() {
+    // let mut shopping_list: Vec<str> = Vec::new(); // error
+    let mut shopping_list: Vec<&str> = Vec::new();
+    shopping_list.push("milk");
+}
+```
+
+##### 2
+
+trait的泛型 impl 需要在 impl 后面加上\<\>
+
+```rust
+struct Wrapper<T> {
+    value: T
+}
+
+impl<T> Wrapper<T> {
+    pub fn new(value: T) -> Self {
+        Wrapper::<T> { value }
+    }
+}
+```
+
+##### 3
+
+我之前正好不太明白：trait在impl的时候为什么指定的是其他的trait而不是可以多指定几个限定的实现类型？第三题展示出来的就是为什么要求泛型T需要指定trait，因为T只需要在未来拥有相同的行为（函数）就可以认为其可以在泛型中被正确使用。与其声明需要实现的类型，不如说明实现的类型需要满足的最小交集的trait的是什么更加方便。
+
+```rust
+pub struct ReportCard<T> {
+    pub grade: T,
+    pub student_name: String,
+    pub student_age: u8,
+}
+
+impl<T: std::fmt::Display> ReportCard<T> {
+    // 如果泛型编写错误的话编译器会有对应的错误提示
+    // T需要满足的最低要求就是可以打印，即拥有Display定义的函数fmt
+    pub fn print(&self) -> String {
+        format!("{} ({}) - achieved a grade of {}", 
+            &self.student_name, &self.student_age, &self.grade)
+    }
+}
+```
+
+#### thead
+
+> 这一个练习就应该早一点出现
+
+学过操作系统的话对于Mutex（互斥量）应该已经丝毫没有任何疑问了。Rust里面似乎是直接提供了一个互斥锁的实现。利用这个互斥锁包裹变量即可进行简单高效的多线程间共享数据的互斥访问。
+
+【Rust中似乎包含了很多这种具有“包裹”性质的结构，需要调用unwrap函数或者别的方法来进行解构。Rust中Vec函数给出返回结果一般也是Option，需要手动展开】
+
+但是问题是Rust的数据有比较复杂的释放机制，如同文件管理一样需要进行引用计数。多线程之间很可能出现计数问题。为了防止这种问题，线程之间共享或者需要在线程之间传递的资源需要一种在多线程状态下也很安全的引用方式，这就是Arc的作用。Arc就是一个线程安全的引用结构，就像Box是一种堆数据的自动指针一样，Arc是一个线程上的自动指针。
+
+```rust
+fn main() {
+    let status = Arc::new(Mutex::new(JobStatus { jobs_completed: 0 }));
+    let status_shared = status.clone();
+    thread::spawn(move || {
+        for _ in 0..10 {
+            thread::sleep(Duration::from_millis(250));
+            status_shared.lock().unwrap().jobs_completed += 1;
+        }
+    });
+    while status.lock().unwrap().jobs_completed < 10 {
+        println!("waiting... ");
+        thread::sleep(Duration::from_millis(500));
+    }
+}
+```
+
+#### conversion
+
+> Rust 作为强类型语言，类型的转换相对于C严格了不止一点
+
+##### using_as
+
+编译器报错很神奇的一点是Rust的除法实际上不支持浮点数除以整数。可能其他语言在实现上也无法做到让浮点数除以整数，只能先把整数隐式转化为浮点数之后再来处理。Rust要求类型转化是显式的。
+
+##### try_from_into
+
+现在的Rust支持使用Range.contains来快速判断一个数是否在Range中。Range就是使用0..2这样的方法构建的结构。可以用这个函数快速进行判断
