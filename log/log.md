@@ -385,3 +385,103 @@ fn fill_vec(mut vec: Vec<i32>) -> Vec<i32> {//只需要在vec前面加一个mut�
 }
 ```
 
+## 2020.9.26
+
+### Rustlings 拟合学习法
+
+> 众所周知，考试前最好的复习方法就是直接做题，发现不会的了再去针对性地复习，我的话正在使用这种方法快速过rust的语法部分
+
+#### Error_handling
+
+1
+
+Rust通过自带的Result枚举类进行错误的判断，其包含Ok和Err两种不同的泛型，可以储存指定类型的信息。目前看来和许多语言的try catch的思想并不是非常一致。但是稍微有一点类似于Java的处理方法
+
+2
+
+match表达式整个算是一个表达式，里面的每一个选项使用`,`分割。最后如果不屑分号的话按照返回值处理每一个选项。
+
+3
+
+```rust
+// errors3.rs
+// This is a program that is trying to use a completed version of the
+// `total_cost` function from the previous exercise. It's not working though!
+// Why not? What should we do to fix it?
+// Execute `rustlings hint errors3` for hints!
+
+use std::num::ParseIntError;
+use std::error::Error;
+
+fn main() -> Result<(), Box<dyn Error>>{
+    let mut tokens = 100;
+    let pretend_user_input = "8";
+
+    let cost = total_cost(pretend_user_input)?;
+
+    if cost > tokens {
+        println!("You can't afford that many!");
+    } else {
+        tokens -= cost;
+        println!("You now have {} tokens.", tokens);
+    }
+    Ok(())
+}
+
+pub fn total_cost(item_quantity: &str) -> Result<i32, ParseIntError> {
+    let processing_fee = 1;
+    let cost_per_item = 5;
+    let qty = item_quantity.parse::<i32>()?;
+
+    Ok(qty * cost_per_item + processing_fee)
+}
+```
+
+根据文档的提示，第三道题最好的解法应该是这样，使用一个可以描述的全局错误类型Box\<dyn Error\>并且让main函数返回Ok(())。要注意Ok中是要包括内容的。
+
+errorsn
+
+有了error3的经验后这道题就不难了，但是各个地方都有可能出错，要注意在各种地方写出?
+
+#### Option
+
+> * Option能有多难？
+> * 好难啊
+
+2
+
+```rust
+// option2.rs
+// Make me compile! Execute `rustlings hint option2` for hints
+
+// I AM NOT DONE
+
+fn main() {
+    if let Some(value) = Some(String::from("rustlings")) {
+        println!("the value of optional value is: {}", value);
+    } else {
+        println!("The optional value doesn't contain anything!");
+    }
+
+    let mut optional_values_vec: Vec<Option<i8>> = Vec::new();
+    for x in 1..10 {
+        optional_values_vec.push(Some(x));
+    }
+
+    // TODO: make this a while let statement - remember that vector.pop also adds another layer of Option<T>
+    // You can stack `Option<T>`'s into while let and if let
+    while let Some(Some(value)) = optional_values_vec.pop() {
+        println!("current value: {}", value);
+    }
+}
+```
+
+option2练习题中的嵌套Some的结构模式非常好地展示出了Rust的语法特点。Rust在很多结构体上都可以这样进行结构操作，而不使用unwrap函数。当然，这样做的前提是使用了if let和while let两个可以自动判断是否解构错误的关键词。
+
+### 重新学习时间
+
+> 虽然说如果有英文文档就直接看英文文档学习比较好。但是我今天发现好像看中文的文档学习得更快一些
+
+#### trait
+
+Rust感觉上包括了绝大部分函数式语言的特点，并且目前看上去并不像是一门面向对象的语言，因为李米娜没有非常明显的类的概念。虽然之前具有有一些像类的概念的Module，但是它也只满足面向对象的“封装”的特点，而不满足“继承”与“多态”
