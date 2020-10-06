@@ -23,6 +23,7 @@
 mod console;
 mod panic;
 mod sbi;
+mod interrupt;
 
 // 汇编编写的程序入口，具体见该文件
 global_asm!(include_str!("entry.asm"));
@@ -31,7 +32,15 @@ global_asm!(include_str!("entry.asm"));
 ///
 /// 在 `_start` 为我们进行了一系列准备之后，这是第一个被调用的 Rust 函数
 #[no_mangle]
-pub extern "C" fn rust_main() -> ! {
+pub extern "C" fn rust_main() -> !{
     println!("Hello rCore-Tutorial!");
-    panic!("end of rust_main")
+    // 初始化各种模块
+    interrupt::init();
+
+    unsafe {
+        llvm_asm!("ebreak"::::"volatile");
+    };
+    
+    loop{};
+    //unreachable!();
 }
