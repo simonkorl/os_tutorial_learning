@@ -46,3 +46,7 @@ pub extern "C" fn rust_main() -> !{
 ```
 
 **注**：不要试图改变 rust_main 的返回类型
+
+### lab-1 可以修改的地方
+
+`context.rs`文件中并不需要引用`riscv::register::scause::Scause`，这个问题间接导致了`handler.rs`中打印 scause 的问题，可以进行修改。
