@@ -1052,3 +1052,66 @@ Disassembly of section .text:
 今天是提交实验一的最后一天，不过我们小组的进展还不足以支撑我们完成实验一的对应要求。我们和老师商量的结果是我们可以把上一个阶段完成的内容作为是实验一进行提交。
 
 我和组员的决定是：先把之前的成果作为实验一提交，之后我们会进行实验一内容的补充完善。
+
+## 2020.10.5
+
+写完了 lab1 但是程序无法运行。运行方法是直接将`main.rs`中的最后一句话注释，并且将返回改为()。
+
+报错为：
+
+```bash
+...
+
+Hello rCore-Tutorial!
+mod interrupt initialized
+in handle_interrupt: Exception(Breakpoint)
+Breakpoint at 0x802012ba
+in handle_interrupt: Exception(LoadFault)
+panic: 'Unresolved interrupt: Exception(LoadFault)
+Context { x: [1, 802000da, 80216360, 0, 8001de00, 1, 82200000, 82200000, 80204960, 8000000000006800, 802163b0, 672f6f677261632e, 80204960, 2f6c726f6b6e6f6d, 0, 802161d4, 4, 1, 1, 8000000000006800, 80200000, 82200000, 0, 0, 2000, 0, 0, 0, 80200000, 0, 0, 0], sstatus: Sstatus { bits: 8000000000006120 }, sepc: 802034b6 }
+stval: 672f6f6772616340'
+```
+
+## 2020.10.6
+
+lab1的`handler.rs`中的注释部分有一点奇怪。利用 Debug 查看中断应该用下面的语句，否则编译无法通过：
+
+```rust
+println!("in handle_interrupt: {:x?}", scause.cause());
+// println!("{:x?}", context.scause.cause()); // context 没有 scause 成员
+```
+
+其实根据测试结果也可以想到为什么昨天写的程序最后会报错，因为现在的 rust_main 函数是不允许进行返回的。在返回后会发生错误（具体原因有待学习），所以会有如此的报错。
+
+如果想要得到实验对应的结果，可以在`main.rs`函数中增加一个`loop`来解决这个问题。
+
+```rust
+pub extern "C" fn rust_main() -> !{
+    println!("Hello rCore-Tutorial!");
+    // 初始化各种模块
+    interrupt::init();
+
+    unsafe {
+        llvm_asm!("ebreak"::::"volatile");
+    };
+    
+    loop{};
+    //unreachable!();
+}
+```
+
+**注**：不要试图改变 rust_main 的返回类型
+
+### lab-1 可以修改的地方
+
+`context.rs`文件中并不需要引用`riscv::register::scause::Scause`，这个问题间接导致了`handler.rs`中打印 scause 的问题，可以进行修改。
+
+### lab-1 实验碎碎念
+
+#### RISC-V 架构
+
+事实证明，如果不了解指令集架构，在面对基础的汇编以及中断等概念的时候会发生一定的疑惑。这里我稍微记录一些路程上的疑惑之处，以便后人注意。
+
+进行 ucore 实验的时候使用的是 x86-32 架构，只要做过 ucore 实验就知道光为了看明白 ucore 的前两个实验的文档就能掉多少头发，x86-32 架构确实复杂，而且有一些知识迁移到 RISC-V 上是不正确的。
+
+1. 不要试图在 RISC-V 汇编代码中找如同`call`这样的汇编关键词。RISC-V 与 MIPS 都是靠着`jal`命令便可以简单地完成 Jump and Link，跳转后的指令会保存在`x1`寄存器中。在这件事上 RISC-V 与 MIPS 非常相近，但是与 x86 相去甚远。（不过不用再担心让人头痛的栈帧问题）
