@@ -26,4 +26,23 @@ println!("in handle_interrupt: {:x?}", scause.cause());
 // println!("{:x?}", context.scause.cause()); // context 没有 scause 成员
 ```
 
-其实根据测试结果也可以想到为什么昨天写的程序最后会报错，因为现在的 rust_main 函数是不允许进行返回的。在返回后会发生错误（具体原因有待学习），所以
+其实根据测试结果也可以想到为什么昨天写的程序最后会报错，因为现在的 rust_main 函数是不允许进行返回的。在返回后会发生错误（具体原因有待学习），所以会有如此的报错。
+
+如果想要得到实验对应的结果，可以在`main.rs`函数中增加一个`loop`来解决这个问题。
+
+```rust
+pub extern "C" fn rust_main() -> !{
+    println!("Hello rCore-Tutorial!");
+    // 初始化各种模块
+    interrupt::init();
+
+    unsafe {
+        llvm_asm!("ebreak"::::"volatile");
+    };
+    
+    loop{};
+    //unreachable!();
+}
+```
+
+**注**：不要试图改变 rust_main 的返回类型
