@@ -32,7 +32,9 @@ pub fn handle_interrupt(context: &mut Context, scause: Scause, stval: usize){
         Trap::Exception(Exception::Breakpoint) => breakpoint(context),
         // 时钟中断
         Trap::Interrupt(Interrupt::SupervisorTimer) => supervisor_timer(context),
+        Trap::Exception(Exception::LoadFault) => load_fault(context, stval),
         _ => fault(context, scause, stval),
+
     }
 }
 
@@ -41,7 +43,7 @@ pub fn handle_interrupt(context: &mut Context, scause: Scause, stval: usize){
 /// 继续执行，其中 `sepc` 增加 2 字节，以跳过当前这条 `ebreak` 指令
 fn breakpoint(context: &mut Context) {
     println!("Breakpoint at 0x{:x}", context.sepc);
-    context.sepc += 2;
+    context.sepc = 0;
 }
 
 /// 处理时钟中断
@@ -59,4 +61,14 @@ fn fault(context: &mut Context, scause: Scause, stval: usize) {
         context,
         stval
     );
+}
+
+fn load_fault(context: & Context, stval: usize){
+    if stval == 0x0 {
+        println!("SUCCESS!");
+    }
+    panic!(
+        "Catch a LoadFault! {:?}\n",
+        context
+    )
 }
