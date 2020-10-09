@@ -1136,6 +1136,8 @@ pub extern "C" fn rust_main() -> !{
 
 lab-2 中省略的部分不少，在看的时候也不知道如何来实现
 
+#### part1
+
 添加的依赖：
 
 `buddy_system_allocator = "0.4.0" //实际上已经更新到0.5.0版本。目前0.4.0可以正确运行`
@@ -1187,6 +1189,8 @@ alloc_error_handler 是一个实验功能，这里会报错
 
 小思考题：实际上，用于分配堆的数组位于 .bss 段，因为这个用于堆分配的静态数组是内核代码的一部分，且因为静态未初始化的数组（全都为0就是没有初始化的意思，因为可以通过指定起始地址和大小说明其在 .bss 段的位置。.bss 段是一个会初始化为 0 的数据段。在其中的数据不会直接占用数据空间，而是通过标注的方法说明空间）
 
+#### part2
+
 “物理内存探测”这一章有一些奇怪，虽然 OpenSBI 可以探测物理内存，但是返回的结果并没有被解析，这里使用了非常简单的方法定义的物理内存的区域，总觉得有一点像是在作弊的感觉。ucore 里面探测内存的代码还特别难看懂，光那一块就用了整整一章解释是如何使用汇编代码完成的物理内存探测。相较之下 rCore 真的太简单了。
 
 1. 增加 lazy_static 库，并引用
@@ -1206,3 +1210,47 @@ pub const PAGE_SIZE: usize = 4096;
 5. 将 mod.rs 中的所有模块变为 pub（未来可能会引用）
 
 最后会打印出一个地址：`PhysicalAddress(0x80a18808)`，实验即宣告成功。这个物理地址因为实现的细节发生变化，甚至注释的长短都可能会影响到这个数组，这是因为注释的内容也被储存进了代码中。
+
+#### part3
+
+“物理内存管理”这一章需要实现的内容很多（需要复制的内容很多）。这一章在 ucore 中也是非常大的一章，在 rCore-Tutorial 中因为大部分呢分配算法已经被提供，并且没有进行细致的讲解，教程部分长度倒是不长，但是需要实现的内容还是不少。
+
+因为教程中提供的内容已经很少了，绝大部分代码需要从仓库文件中复制得到，代码中的坑也可以合理地规避掉。
+
+一定要记住修改 memory 的 mod.rs ！
+
+```rust
+//! 内存模块
+//! 
+//!
+
+// 因为模块内包含许多基础设施类别，实现了许多以后可能会用到的函数，
+// 所以在模块范围内不提示「未使用的函数」等警告
+#![allow(dead_code)]
+
+pub mod heap;
+pub mod config;
+pub mod address;
+pub mod frame;
+pub mod range;
+
+// 一定要记住写这一行引用！
+pub use {address::*, config::*, frame::FRAME_ALLOCATOR, range::Range};
+
+/// 一个缩写，模块中一些函数会使用
+pub type MemoryResult<T> = Result<T, &'static str>;
+
+pub fn init() {
+    heap::init();
+
+    //* 这一行代码先复制防止之后的问题，之后的 lab 应该有解释
+    // 允许内核读写用户态内存
+    unsafe { riscv::register::sstatus::set_sum() };
+
+    println!("mod memory initialized"); 
+}
+```
+
+一定要注意所有的 mod.rs 文件，要好好复制。如果你选择复制完成这个 lab ，那么就不要想着自己去完善 mod.rs ，直接去复制下来。比如说`algorithm/src/allocator/mod.rs`就非常复杂，远远复杂于提供的简介。
+
+algorithm 实际上是一个全新的 package ，需要至少填写`name version edition`三个字段。这个部分直接抄写吧，我也不知道为什么要这么写，尤其是那个 edition ，如果不定义的话编译不过去，书写过后就可以了。如果想要拥有自己的 rCore 的人一定注意！
