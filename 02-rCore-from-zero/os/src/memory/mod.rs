@@ -1,8 +1,9 @@
 //! 内存模块
 //! 
 //! 
-mod heap;
-mod config;
+pub mod heap;
+pub mod config;
+pub mod address;
 
 pub fn init() {
     heap::init();
