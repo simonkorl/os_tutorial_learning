@@ -1254,3 +1254,73 @@ pub fn init() {
 一定要注意所有的 mod.rs 文件，要好好复制。如果你选择复制完成这个 lab ，那么就不要想着自己去完善 mod.rs ，直接去复制下来。比如说`algorithm/src/allocator/mod.rs`就非常复杂，远远复杂于提供的简介。
 
 algorithm 实际上是一个全新的 package ，需要至少填写`name version edition`三个字段。这个部分直接抄写吧，我也不知道为什么要这么写，尤其是那个 edition ，如果不定义的话编译不过去，书写过后就可以了。如果想要拥有自己的 rCore 的人一定注意！
+
+## 2020.10.10
+
+### 放弃 lab2
+
+lab2 的问题还算是好回答，但是实验题真的是难，暂时决定搁置一下。
+
+### 试试 lab3
+
+我们已经放弃按照教程来书写自己的 rCore 代码了——这个教程并不是很适合这么来做。因为很多具体的实现都被隐藏了起来，教程主要展示的是操作系统实现层面的关键思路。如果想要按照教程实现自己的代码的话就会需要大量的复制粘贴工作——这种工作应该直接交给 diff 工具处理，这在学习操作系统方面没有提供任何帮助，所以我们打算从现在以实验指导书为主要学习材料，利用实验题作为练习来进行 rCore 的实现。
+
+> 不得不说，用 Rust 写这些内容是痛苦的（可能后面一两个章节还会痛苦一段时间），但是为了充分发挥 Rust 的特性，这些挣扎是必要的，一旦我们铺平了这些基础设施，后面的流程会大大简化。
+
+我的感觉和实验三指导书中写的这句话非常类似。如果说第一章的内容还可以靠着汇编以及计算机组成原理的知识试图理解一下，那么实验二和实验三基本上就处于看代码可能都不明白是怎么回事的阶段了。实验指导书虽然有一定的帮助，但是相对于 ucore 来说 Rust 的实现理解起来更难一点（然而 C 的实现也没有简单到哪里去，ucore 的物理内存以及虚拟地址这部分也是能让人头疼好半天，最大的好处就是最复杂的基础配置代码并不需要手写）因为 Rust 本身的语法特点，我敢说如果要手动实现这部分代码的话肯定会非常痛苦。
+
+### 回答问题的心得体会
+
+* 在做这章的实验之前最好把 Sv39 的页表项格式抄写一次，可以有更深的理解.
+
+* 页表这一块初学的话一定会犯错，尤其是 RISC-V 的页表，因为它可能不完全使用全部的地址空间（只用一个最高的9位作为 VPN的索引，剩下的全都是 offset）
+
+* 记住地址是从零开始数的！[38:30]指的是从31位开始的9位bit，也就是抛弃最后的30位（对应1G大小的空间）。其实设计者会尽量设计得简单一点。
+
+### lab3+ ？？？
+
+\#issue 
+
+话说 Lab3+ 一开始好像缺少组件： riscv64-unknown-elf-objcopy。
+
+这个又是一个特别让人头疼的工具链问题：riscv64-unknown-elf-objcopy 是 GNU 的 riscv 交叉编译工具链中的一个组件，但是我们根据教程安装的是 llvm 的工具链，如果需要重新安装工具链的话是个不小的工作量，如果没有指导的话可能会花大量的时间。我在网络上找到了一个还算靠谱的实现[从零开始配置risc-v交叉编译环境与工具链](https://zhuanlan.zhihu.com/p/72862396)，我正在尝试利用这个教程进行配置，希望能够解决这个问题。
+
+**其实不需要配置 GNU 工具链也可以成功运行**，只需要把`user/Makefile`中
+
+`$(foreach bin_file,$(BIN_FILES),riscv64-unknown-elf-objcopy --strip-debug $(bin_file) $(bin_file);)`
+
+一行的内容中的`riscv64-unknown-elf-objcopy`修改为`rust-objcopy`即可：
+
+`$(foreach bin_file,$(BIN_FILES),rust-objcopy --strip-debug $(bin_file) $(bin_file);)`
+
+## 2020.10.11
+
+### lab3 实验中的痛苦时刻
+
+我在实现时钟替换算法的时候遭遇了许多 Rust 语法上的问题，尤其是这个传入 Swapper::push 的`*mut PageTableEntry`参数，可以让人头疼一阵子。
+
+这个传入的 raw pointer 并不能进行安全的转换，需要在`unsafe`的块中进行解引用。这一块还算好理解，但是用来储存它的结构需要好好思考一下。如果使用`(VirtualPageNumber, FrameTracker, *mut PageTableEntry)`的 tuple 进行储存会出如下编译错误：
+
+`error[E0277]: '*mut memory::mapping::page_table_entry::PageTableEntry' cannot be sent between threads safely`
+
+这并不是因为解引用生指针而导致的问题，而是因为不可以在线程之间直接传送储存的生指针，如果被编译器检查出来的话就会出编译问题，不过只要想办法绕过编译器就可以解决。
+
+这里我没有想到很好的办法解决，我的程序中的解决方法参考了[yunwei37](https://github.com/yunwei37/os-summer-of-code-daily) 同学的实现：利用 usize 储存指针，之后再通过 unsafe  转换回指针即可躲过类型检查。不过这个方法应该也没办法完全说保证线程的安全，因为实际上我们还是储存和传递了生指针。
+
+最后为了测试自己写的时钟替换算法，可以将`main.rs`中的下面这段代码解除注释:
+
+```rust
+    PROCESSOR.lock().add_thread(create_kernel_thread(
+        Process::new_kernel().unwrap(),
+        test_page_fault as usize,
+        None,
+    ));
+```
+
+之后注释掉`user_shell`对应的那行代码就可以完成一个简单的测试程序。
+
+如果实现的 Swapper 没有问题，那么最后会有绿色的`test passed`显示。
+
+\# tips
+
+**小提示**：QEMU 的退出(在 Windows10 WSL2 上)是按 Ctrl+A, x 。它的意思其实是，首先按 Ctrl+A ，之后手离开键盘后再单独按 x 键便可退出。
